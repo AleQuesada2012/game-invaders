@@ -1,0 +1,7 @@
+Alejandro 25
+Michael 50
+Andres 59
+Alex 158
+David 200
+Leonardo 78
+Roger 15
