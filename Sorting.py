@@ -1,7 +1,7 @@
 #module for implementing and testing the sort of player values, isolated.
 
 def quick_score_sort(file_name):
-    with open(file_name, 'r+')as file:
+    with open(file_name, 'r+') as file:
         initial_scores = file.readlines() #creates a list with each element being a line in the file.
         raw_scores = []
         toSort = []
@@ -31,11 +31,11 @@ def quick_score_sort(file_name):
                     print("element: " + str(element))
                     tmp = line[0] + ' ' + str(element)
                     print(tmp)
-                    result_wnames.append(tmp) #this ends as the sorted list with names included
+                    result_wnames.append(tmp) #termina como la lista ordenada con nombres incluidos
         print(result)
         print(result_wnames)
 
-        #write the new list of top scores
+        #escribe la nueva lista de puntajes
         file.truncate(0)
         file.seek(0)
         for line in result_wnames:
@@ -68,5 +68,15 @@ def sort_aux(list):
     result = left + [list[current]] + right
     return result
 
-# r+ means Read and Write access mode
-quick_score_sort("scores.txt")
+def find_score_position(Name):
+    with open("scores.txt", 'r') as file:
+        list = file.readlines()
+        i = 0
+        for score in list:
+            score.replace('\n','')
+            sublist = score.split(' ')
+            if sublist[0] == Name:
+                return i
+            i += 1
+
+#quick_score_sort("scores.txt")

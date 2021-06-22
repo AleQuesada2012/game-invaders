@@ -18,3 +18,12 @@ class Window:
 
     def __call__(self, *args, **kwargs):
         return self.window
+
+    def set_bg(self, bg):
+        self.window.blit(bg,[0,0])
+
+    def add_text(self, text, textRect):
+        self.window.blit(text, textRect)
+
+    def getWindow(self):
+        return self.window

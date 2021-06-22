@@ -3,7 +3,7 @@ from entities.player import Player
 from entities.mob import Mob
 from window import Window
 from time import sleep
-
+from Sorting import quick_score_sort
 pygame.init()
 
 
@@ -13,6 +13,7 @@ class Level:
     clock = pygame.time.Clock()
     font = pygame.font.Font('freesansbold.ttf', 24)
     sprites = pygame.sprite.Group()
+    constant_username = ''
 
     WIDTH = 600
     HEIGHT = 800
@@ -25,7 +26,7 @@ class Level:
     Green = (0, 255, 0)
     Blue = (0, 0, 255)
 
-    def __init__(self, window: Window, player: Player, background, mob, final: bool = False):
+    def __init__(self, username: str, window: Window, player: Player, background, mob, final: bool = False):
         print("CREATED LEVEL")
         self.window = window
         self.player = player
@@ -36,6 +37,7 @@ class Level:
         self.player_group.add(self.player)
         self.sprites.add(self.player)
         self.background = pygame.image.load(f"images/{background}")
+        self.constant_username = username
 
     def start(self, mobs_to_spawn, points_per_second):
         self.spawnMobs(mobs_to_spawn)
@@ -58,6 +60,10 @@ class Level:
 
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_p:
+                                #save the score before resetting the variables
+                                with open("scores.txt", 'r+') as file:
+                                    file.write(self.constant_username + " " + self.points)
+                                    quick_score_sort(file)
                                 self.player.lives = 3
                                 self.points = 0
                                 self.time = 0
@@ -67,6 +73,10 @@ class Level:
 
                             elif event.key == pygame.K_ESCAPE:
                                 self.mobs.empty()
+                                #save the score before closing the program
+                                with open("scores.txt", 'r+') as file:
+                                    file.write(self.constant_username + " " + self.points)
+                                    quick_score_sort(file)
                                 return False
             collision = pygame.sprite.groupcollide(self.mobs, self.player_group, True, False)
             if collision:
@@ -78,7 +88,12 @@ class Level:
                 self.points += points_per_second
 
             if self.win(250, 360):
-                # Add logic for the win.
+                # Add logic for the win
+                with open("scores.txt", 'r+') as file:
+                    print()
+                    file.write(self.constant_username + " " + self.points)
+                    quick_score_sort(file)
+                # automatically closes the file
                 if self.final:
                     sleep(5)
                 self.mobs.remove(self.mobs)
@@ -89,6 +104,7 @@ class Level:
             self.window().fill(self.Black)
             self.window().blit(self.background, (0, 0))
             self.showLives(10, 776)
+            self.showName(200, 10)
             self.showScore(125, 776)
             self.showTime(420, 776)
             self.retry(50, 520)
@@ -145,3 +161,7 @@ class Level:
     def showTime(self, x, y):
         time = self.font.render("Tiempo :" + str(self.time), True, (255, 255, 255))
         self.window().blit(time, (x, y))
+
+    def showName(self, x, y):
+        name = self.font.render("Name: " + self.constant_username, True, (255, 255, 255))
+        self.window().blit(name, (x, y))
