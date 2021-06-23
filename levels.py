@@ -4,6 +4,7 @@ from entities.mob import Mob
 from window import Window
 from time import sleep
 from Sorting import quick_score_sort
+from Sorting import find_score_position
 pygame.init()
 
 
@@ -53,30 +54,36 @@ class Level:
                 self.player.rect.centerx = self.window.width / 2
                 self.player.rect.bottom = self.window.height - 10
                 listening = True
+                wrote_score = False
                 while listening:
+                    # save the score before resetting the variables
+                    # automatically closes the file
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
+                            if not wrote_score:
+                                with open("scores.txt", 'a') as file:
+                                    file.write(self.constant_username + " " + str(self.player.points) + '\n')
+                                # esperamos a que el buffer del archivo se cierre
+                                quick_score_sort("scores.txt")
+                                wrote_score = True
                             return False
-
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_p:
-                                #save the score before resetting the variables
-                                with open("scores.txt", 'r+') as file:
-                                    file.write(self.constant_username + " " + self.points)
-                                    quick_score_sort(file)
+                                if not wrote_score:
+                                    with open("scores.txt", 'a') as file:
+                                        file.write(self.constant_username + " " + str(self.player.points) + '\n')
+                                    # esperamos a que el buffer del archivo se cierre
+                                    quick_score_sort("scores.txt")
+                                    wrote_score = True
                                 self.player.lives = 3
                                 self.points = 0
                                 self.time = 0
                                 listening = False
-
                                 break
 
                             elif event.key == pygame.K_ESCAPE:
+                                self.player.points += self.points
                                 self.mobs.empty()
-                                #save the score before closing the program
-                                with open("scores.txt", 'r+') as file:
-                                    file.write(self.constant_username + " " + self.points)
-                                    quick_score_sort(file)
                                 return False
             collision = pygame.sprite.groupcollide(self.mobs, self.player_group, True, False)
             if collision:
@@ -89,11 +96,6 @@ class Level:
 
             if self.win(250, 360):
                 # Add logic for the win
-                with open("scores.txt", 'r+') as file:
-                    print()
-                    file.write(self.constant_username + " " + self.points)
-                    quick_score_sort(file)
-                # automatically closes the file
                 if self.final:
                     sleep(5)
                 self.mobs.remove(self.mobs)
@@ -109,7 +111,10 @@ class Level:
             self.showTime(420, 776)
             self.retry(50, 520)
             self.close(300, 520)
-
+            position = find_score_position(self.constant_username)
+            if position <= 7:
+                self.showTop7(20, 300, position)
+            
             self.sprites.draw(self.window())
             pygame.display.flip()
 
@@ -157,6 +162,11 @@ class Level:
     def showScore(self, x, y):
         score = self.font.render("Puntaje :" + str(self.points + self.player.points), True, (255, 255, 255))
         self.window().blit(score, (x, y))
+
+    def showTop7(self, x, y, position):
+        text = "Está entre los mejores 7 resultados! posición: #" + str(position) + " Puntos: " + str(self.points)
+        notice = self.font.render(text, True, (255, 255, 255))
+        self.window().blit(notice, (x, y))
 
     def showTime(self, x, y):
         time = self.font.render("Tiempo :" + str(self.time), True, (255, 255, 255))

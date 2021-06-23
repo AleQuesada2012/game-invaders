@@ -2,7 +2,7 @@ import pygame
 from levels import Level
 from window import Window
 from entities.player import Player
-import Sorting
+from Sorting import *
 import sys
 
 
@@ -12,17 +12,27 @@ def startGame(window, player, user):
     mobs = ["car.png", "medicine-ball.png", "asteroid.png"]
     backgrounds = ["calle3.jpg", "Cancha3.jpg", "planeta1.jpg"]
     player_name = user
-    for i in range(1, 4):
+    for i in range(0, 3):
         final = False
-        if i == 3:
+        if i == 2:
             final = True
-        player.setImage(players[i - 1])
-        if not Level(player_name, window, player, backgrounds[i - 1], mobs[i - 1], final=final).start(2 * i, 2 * i):
+        player.setImage(players[i])
+        if not Level(player_name, window, player, backgrounds[i], mobs[i], final=final).start((2*i)+2, (2*i)+1):
             print("Lost")
             win = not win
             break
+
     if win:
         # Do the wining stuff
+
+        with open("scores.txt", 'r+') as file:
+            print("writing name and score to file...")
+            file.write(player_name + " " + str(Level.points) + '\n')
+            quick_score_sort("scores.txt")
+        position = find_score_position(player_name)
+        if position <= 7:
+            Level.showTop7(150, 300, position)
+         #automatically closes the file
         print("WIN")
     else:
         # Do the loosing stuff
@@ -105,14 +115,14 @@ def about(window):
         window.add_text(text8, author2_rect)
         window.add_text(text9, instructions_rect)
         window.add_text(text10, ins2_rect)
-        window.add_text(text11,back_rect)
+        window.add_text(text11, back_rect)
         pygame.display.update()
 
 
 def top_scores(window):
     font = pygame.font.Font('freesansbold.ttf', 18)
     file = "scores.txt"
-    Sorting.quick_score_sort(file)
+    quick_score_sort(file)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -219,7 +229,7 @@ def main():
         #pygame.display.update()
         pygame.display.flip()
     player = Player(window)
-    startGame(window, player,player_name)
+    startGame(window, player, player_name)
 
 
 if __name__ == '__main__':

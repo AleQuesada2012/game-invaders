@@ -7,7 +7,7 @@ def quick_score_sort(file_name):
         toSort = []
         result = []
         for pair in initial_scores:
-            print("pair: " + pair )
+            print("pair: " + pair)
             raw_pair = pair.replace("\n",'')
             split_pair = raw_pair.split(sep=" ", maxsplit= 1)
             raw_scores.append(split_pair)
@@ -38,6 +38,10 @@ def quick_score_sort(file_name):
         #escribe la nueva lista de puntajes
         file.truncate(0)
         file.seek(0)
+
+        #escribir la lista en el orden inverso del que están en el result_wnames
+        result_wnames.reverse()
+
         for line in result_wnames:
             line = line + '\n'
             file.write(line)
@@ -69,14 +73,15 @@ def sort_aux(list):
     return result
 
 def find_score_position(Name):
+    i = 1
     with open("scores.txt", 'r') as file:
         list = file.readlines()
-        i = 0
         for score in list:
-            score.replace('\n','')
+            #score.replace('\n','')
             sublist = score.split(' ')
             if sublist[0] == Name:
-                return i
+                break
             i += 1
+    return i
 
 #quick_score_sort("scores.txt")
